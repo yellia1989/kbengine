@@ -146,6 +146,7 @@ typedef struct EngineComponentInfo
 
 		isOnInitCallPropertysSetMethods = true;
 		forceInternalLogin = false;
+		bots_robot = true;
 	}
 
 	~EngineComponentInfo()
@@ -212,6 +213,7 @@ typedef struct EngineComponentInfo
 
 	bool forceInternalLogin;								// 对应baseapp的externalAddress的解决方案，当externalAddress强制下发公网IP提供登陆时，
 															// 如果局域网内部使用机器人测试也走公网IP和流量可能会不合适，此时可以设置为true，登陆时强制直接使用内网环境
+	bool bots_robot;										// 机器人是否以AI登录
 
 	std::string bots_account_name_prefix;					// 机器人账号名称的前缀
 	uint32 bots_account_name_suffix_inc;					// 机器人账号名称的后缀递增, 0使用随机数递增， 否则按照baseNum填写的数递增

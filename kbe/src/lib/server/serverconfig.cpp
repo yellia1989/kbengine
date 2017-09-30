@@ -1237,6 +1237,11 @@ bool ServerConfig::loadConfig(std::string fileName)
 			_botsInfo.forceInternalLogin = (xml->getValStr(node) == "true");
 		}
 
+		node = xml->enterNode(rootNode, "robot");
+		if (node != NULL){
+			_botsInfo.bots_robot = (xml->getValStr(node) == "true");
+		}
+
 		node = xml->enterNode(rootNode, "telnet_service");
 		if(node != NULL)
 		{

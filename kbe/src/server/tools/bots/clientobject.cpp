@@ -62,7 +62,7 @@ pTCPPacketReceiverEx_(NULL)
 {
 	name_ = name;
 	typeClient_ = CLIENT_TYPE_BOTS;
-	clientDatas_ = "bots:18c050221756d6c7647abeab989d9a99";
+	clientDatas_ = "bots:18c050221756d6c7647abeab989d9a99:" + KBEngine::StringConv::val2str(g_kbeSrvConfig.getBots().bots_robot);
 }
 
 //-------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void ClientObject::reset(void)
 	
 	name_ = name;
 	password_ = passwd;
-	clientDatas_ = "bots:18c050221756d6c7647abeab989d9a99";
+	clientDatas_ = "bots:18c050221756d6c7647abeab989d9a99:" + KBEngine::StringConv::val2str(g_kbeSrvConfig.getBots().bots_robot);
 	state_ = C_STATE_INIT;
 }
 

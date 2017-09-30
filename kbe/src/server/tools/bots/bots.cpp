@@ -224,6 +224,12 @@ bool Bots::installPyModules()
 		ERROR_MSG( "Bots::installPyModules: Unable to set KBEngine.LOG_TYPE_WAR.\n");
 	}
 
+	// 是否开放AI
+	if (PyModule_AddIntConstant(this->getScript().getModule(), "IS_OPEN_AI", g_kbeSrvConfig.getBots().bots_robot))
+	{
+		ERROR_MSG("Bots::installPyModules: Unable to set KBEngine.IS_OPEN_AI.\n");
+	}
+
 	registerScript(client::Entity::getScriptType());
 
 	// 安装入口模块
