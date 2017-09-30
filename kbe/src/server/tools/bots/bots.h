@@ -353,6 +353,7 @@ protected:
 
 	// 处理创建与登录的handler
 	CreateAndLoginHandler*									pCreateAndLoginHandler_;
+	ServerAppActiveHandler*									pServerAppHandler_;
 
 	Network::EventPoller*									pEventPoller_;
 

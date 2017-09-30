@@ -521,6 +521,10 @@ public:
 	void flags(uint32 v) { flags_ = v; }
 	static PyObject* __py_setFlags(PyObject* self, PyObject* args);
 	static PyObject* __py_getFlags(PyObject* self, PyObject* args);
+
+	/** 增加机器人
+	*/
+	static PyObject* __py_addBots(PyObject* self, PyObject* args);
 	
 protected:
 	TimerHandle												loopCheckTimerHandle_;

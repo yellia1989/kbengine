@@ -27,6 +27,8 @@ along with KBEngine.  If not, see <http://www.gnu.org/licenses/>.
 #include "network/bundle.h"
 #include "common/memorystream.h"
 #include "server/serverconfig.h"
+#include "../../server/baseapp/baseapp_interface.h"
+#include "../../server/tools/logger/logger_interface.h"
 
 namespace KBEngine { 
 
@@ -76,6 +78,73 @@ void CreateAndLoginHandler::handleTimeout(TimerHandle handle, void * arg)
 			Bots::getSingleton().networkInterface());
 
 		Bots::getSingleton().addClient(pClient);
+	}
+}
+
+ServerAppActiveHandler::ServerAppActiveHandler()
+	:timerHandle_()
+{
+}
+
+void ServerAppActiveHandler::cancel()
+{
+	timerHandle_.cancel();
+}
+
+void ServerAppActiveHandler::startActiveTick(float period)
+{
+	cancel();
+	timerHandle_ = Bots::getSingleton().dispatcher().addTimer(int(period * 1000000), this);
+}
+
+//-------------------------------------------------------------------------------------
+ServerAppActiveHandler::~ServerAppActiveHandler()
+{
+	cancel();
+}
+
+//-------------------------------------------------------------------------------------
+void ServerAppActiveHandler::handleTimeout(TimerHandle handle, void * arg)
+{
+	int8 findComponentTypes[] = { LOGGER_TYPE, BASEAPP_TYPE, UNKNOWN_COMPONENT_TYPE };
+
+	int ifind = 0;
+	while (findComponentTypes[ifind] != UNKNOWN_COMPONENT_TYPE)
+	{
+		COMPONENT_TYPE componentType = (COMPONENT_TYPE)findComponentTypes[ifind];
+
+		Components::COMPONENTS& components = Components::getSingleton().getComponents(componentType);
+		Components::COMPONENTS::iterator iter = components.begin();
+		for (; iter != components.end(); ++iter)
+		{
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			
+			switch (componentType)
+			{
+			case BASEAPP_TYPE:
+				{
+					pBundle->newMessage(BaseappInterface::onAppActiveTick);
+				}
+				break;
+			case LOGGER_TYPE:
+				{
+					pBundle->newMessage(LoggerInterface::onAppActiveTick);
+				}
+				break;
+			default:
+				break;
+			}
+
+			(*pBundle) << g_componentType;
+			(*pBundle) << g_componentID;
+
+			if ((*iter).pChannel != NULL)
+				(*iter).pChannel->send(pBundle);
+			else
+				Network::Bundle::reclaimPoolObject(pBundle);
+		}
+
+		ifind++;
 	}
 }
 

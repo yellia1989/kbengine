@@ -52,6 +52,7 @@ along with KBEngine.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../server/cellapp/cellapp_interface.h"
 #include "../../server/dbmgr/dbmgr_interface.h"
 #include "../../server/loginapp/loginapp_interface.h"
+#include "../../server/tools/bots/bots_interface.h"
 
 namespace KBEngine{
 	
@@ -402,7 +403,8 @@ bool Baseapp::installPyModules()
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		lookUpBaseByDBID,				__py_lookUpBaseByDBID,										METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(), 		setAppFlags,					__py_setFlags,												METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(), 		getAppFlags,					__py_getFlags,												METH_VARARGS,			0);
-		
+	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		addBots,						__py_addBots,												METH_VARARGS,			0);
+
 	return EntityApp<Base>::installPyModules();
 }
 
@@ -5564,6 +5566,39 @@ PyObject* Baseapp::__py_setFlags(PyObject* self, PyObject* args)
 	}
 
 	Baseapp::getSingleton().flags(flags);
+	S_Return;
+}
+
+PyObject* Baseapp::__py_addBots(PyObject* self, PyObject* args)
+{
+	if (PyTuple_Size(args) != 1)
+	{
+		PyErr_Format(PyExc_TypeError, "KBEngine::addBots: argsSize != 1!");
+		PyErr_PrintEx(0);
+		return NULL;
+	}
+
+	uint32 num = 0;
+
+	if (PyArg_ParseTuple(args, "I", &num) == -1)
+	{
+		PyErr_Format(PyExc_TypeError, "KBEngine::addBots: args error!");
+		PyErr_PrintEx(0);
+		return NULL;
+	}
+
+	Components::COMPONENTS& cts = Components::getSingleton().getComponents(BOTS_TYPE);
+	if (cts.size() == 0)
+		S_Return;
+
+	Components::ComponentInfos* botsinfos = &(*cts.begin());
+	if (botsinfos == NULL || botsinfos->pChannel == NULL || botsinfos->cid == 0)
+		S_Return;
+
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	(*pBundle).newMessage(BotsInterface::addBots);
+	(*pBundle) << num;
+	botsinfos->pChannel->send(pBundle);
 	S_Return;
 }
 

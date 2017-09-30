@@ -41,7 +41,20 @@ protected:
 
 };
 
+class ServerAppActiveHandler : public TimerHandler
+{
+public:
+	ServerAppActiveHandler();
+	virtual ~ServerAppActiveHandler();
 
+	void startActiveTick(float period);
+	void cancel();
+
+protected:
+	virtual void handleTimeout(TimerHandle handle, void * arg);
+
+	TimerHandle timerHandle_;
+};
 
 }
 

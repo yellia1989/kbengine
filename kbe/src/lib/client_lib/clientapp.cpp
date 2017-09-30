@@ -587,6 +587,10 @@ void ClientApp::shutDown()
 //-------------------------------------------------------------------------------------	
 void ClientApp::onChannelDeregister(Network::Channel * pChannel)
 {
+	if (pChannel->isInternal())
+	{
+		Components::getSingleton().onChannelDeregister(pChannel, false);
+	}
 }
 
 //-------------------------------------------------------------------------------------	

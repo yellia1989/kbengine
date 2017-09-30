@@ -59,11 +59,15 @@ reqCreateAndLoginTotalCount_(g_kbeSrvConfig.getBots().defaultAddBots_totalCount)
 reqCreateAndLoginTickCount_(g_kbeSrvConfig.getBots().defaultAddBots_tickCount),
 reqCreateAndLoginTickTime_(g_kbeSrvConfig.getBots().defaultAddBots_tickTime),
 pCreateAndLoginHandler_(NULL),
+pServerAppHandler_(NULL),
 pEventPoller_(Network::EventPoller::create()),
 pTelnetServer_(NULL)
 {
 	KBEngine::Network::MessageHandlers::pMainMessageHandlers = &BotsInterface::messageHandlers;
 	Components::getSingleton().initialize(&ninterface, componentType, componentID);
+
+	pServerAppHandler_ = new ServerAppActiveHandler();
+	pServerAppHandler_->startActiveTick(KBE_MAX(1.f, Network::g_channelInternalTimeout / 2.0f));
 }
 
 //-------------------------------------------------------------------------------------
@@ -71,6 +75,8 @@ Bots::~Bots()
 {
 	Components::getSingleton().finalise();
 	SAFE_RELEASE(pEventPoller_);
+
+	SAFE_RELEASE(pServerAppHandler_);
 }
 
 //-------------------------------------------------------------------------------------
@@ -321,6 +327,30 @@ void Bots::addBots(Network::Channel * pChannel, MemoryStream& s)
 	float reqCreateAndLoginTickTime = 0;
 
 	s >> reqCreateAndLoginTotalCount;
+
+	// µ÷Èë½Å±¾
+	if (PyObject_HasAttrString(getEntryScript().get(), "onAddBots"))
+	{
+		PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
+			const_cast<char*>("onAddBots"),
+			const_cast<char*>("I"),
+			reqCreateAndLoginTotalCount);
+
+		if (pyResult != NULL)
+		{
+			uint32_t count = 0;
+			if (PyArg_Parse(pyResult, "I", &count) == -1)
+			{
+				SCRIPT_ERROR_CHECK();
+			}
+			reqCreateAndLoginTotalCount = std::min(reqCreateAndLoginTotalCount, count);
+			Py_DECREF(pyResult);
+		}
+		else
+		{
+			SCRIPT_ERROR_CHECK();
+		}
+	}
 
 	reqCreateAndLoginTotalCount_ += reqCreateAndLoginTotalCount;
 

@@ -131,6 +131,10 @@ void Components::initialize(Network::NetworkInterface * pNetworkInterface, COMPO
 	case DBMGR_TYPE:
 		findComponentTypes_[0] = LOGGER_TYPE;
 		break;
+	case BOTS_TYPE:
+		findComponentTypes_[0] = LOGGER_TYPE;
+		findComponentTypes_[1] = BASEAPP_TYPE;
+		break;
 	default:
 		if(componentType_ != LOGGER_TYPE && 
 			componentType_ != MACHINE_TYPE && 
